@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Feedback Sentiment Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 0 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .sentiment-pie {
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        .chart-small {
+            height: 200px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .positive { color: #27ae60; }
+        .negative { color: #e74c3c; }
+        .neutral { color: #95a5a6; }
+
+        .issues-list {
+            grid-column: 1 / -1;
+        }
+
+        .issue-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            padding: 12px;
+            border-left: 4px solid #e74c3c;
+            background: #fff5f5;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        .issue-item.medium {
+            border-left-color: #f39c12;
+            background: #fffbf0;
+        }
+
+        .issue-content {
+            flex-grow: 1;
+        }
+
+        .issue-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .high { background: #ffebee; color: #c62828; }
+        .medium { background: #fff8e1; color: #ef6c00; }
+
+        .feature-list {
+            grid-column: 1 / -1;
+        }
+
+        .feature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-left: 4px solid #27ae60;
+            background: #f0f9f0;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        .feedback-table {
+            grid-column: 1 / -1;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .sentiment-tag {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .sentiment-positive { background: #d4edda; color: #155724; }
+        .sentiment-negative { background: #f8d7da; color: #721c24; }
+        .sentiment-neutral { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Customer Feedback Sentiment Dashboard</h1>
+        <p>Real-time insights from customer feedback analysis using NLP</p>
+    </div>
+
+    <div class="filters">
+        <div class="filter-group">
+            <select>
+                <option>Last 7 days</option>
+                <option>Last 30 days</option>
+                <option>Last 90 days</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <select>
+                <option>All Products</option>
+                <option>Mobile App</option>
+                <option>Website</option>
+                <option>Support</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <select>
+                <option>All Sentiments</option>
+                <option>Positive</option>
+                <option>Negative</option>
+                <option>Neutral</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <!-- Overall Stats -->
+        <div class="card sentiment-pie">
+            <h3>Overall Sentiment Distribution</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">1,247</div>
+                    <div class="stat-label">Total Feedback</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number positive">68%</div>
+                    <div class="stat-label">Positive Sentiment</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number negative">22%</div>
+                    <div class="stat-label">Negative Sentiment</div>
+                </div>
+            </div>
+            <div class="chart-container chart-small">
+                <canvas id="sentimentPie"></canvas>
+            </div>
+        </div>
+
+        <!-- Category Analysis -->
+        <div class="card">
+            <h3>Sentiment by Category</h3>
+            <div class="chart-container chart-small">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Trend Analysis -->
+        <div class="card">
+            <h3>Sentiment Trend Over Time</h3>
+            <div class="chart-container chart-small">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Issues -->
+        <div class="card issues-list">
+            <h3>Top Issues</h3>
+            <div class="issue-item">
+                <div class="issue-content">
+                    <strong>App crashes</strong><br>
+                    <small>45 mentions</small>
+                </div>
+                <span class="issue-badge high">high</span>
+            </div>
+            <div class="issue-item medium">
+                <div class="issue-content">
+                    <strong>Slow loading</strong><br>
+                    <small>32 mentions</small>
+                </div>
+                <span class="issue-badge medium">medium</span>
+            </div>
+            <div class="issue-item medium">
+                <div class="issue-content">
+                    <strong>Navigation confusion</strong><br>
+                    <small>28 mentions</small>
+                </div>
+                <span class="issue-badge medium">medium</span>
+            </div>
+            <div class="issue-item">
+                <div class="issue-content">
+                    <strong>Payment errors</strong><br>
+                    <small>15 mentions</small>
+                </div>
+                <span class="issue-badge high">high</span>
+            </div>
+        </div>
+
+        <!-- Feature Requests -->
+        <div class="card feature-list">
+            <h3>Top Feature Requests</h3>
+            <div class="feature-item">
+                <div class="issue-content">
+                    <strong>Dark mode</strong><br>
+                    <small>67 requests</small>
+                </div>
+                <span class="issue-badge high">high</span>
+            </div>
+            <div class="feature-item">
+                <div class="issue-content">
+                    <strong>Offline mode</strong><br>
+                    <small>54 requests</small>
+                </div>
+                <span class="issue-badge high">high</span>
+            </div>
+            <div class="feature-item">
+                <div class="issue-content">
+                    <strong>Better search</strong><br>
+                    <small>43 requests</small>
+                </div>
+                <span class="issue-badge medium">medium</span>
+            </div>
+            <div class="feature-item">
+                <div class="issue-content">
+                    <strong>Push notifications</strong><br>
+                    <small>38 requests</small>
+                </div>
+                <span class="issue-badge medium">medium</span>
+            </div>
+        </div>
+
+        <!-- Recent Feedback -->
+        <div class="card feedback-table">
+            <h3>Recent Feedback (8 items)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feedback</th>
+                        <th>Sentiment</th>
+                        <th>Score</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>The new update is amazing! Love the dark mode feature.</td>
+                        <td><span class="sentiment-tag sentiment-positive">positive</span></td>
+                        <td>0.85</td>
+                        <td>Mobile App</td>
+                        <td>UI/UX</td>
+                        <td>2024-08-01</td>
+                    </tr>
+                    <tr>
+                        <td>App crashes frequently after the latest update</td>
+                        <td><span class="sentiment-tag sentiment-negative">negative</span></td>
+                        <td>-0.72</td>
+                        <td>Mobile App</td>
+                        <td>Performance</td>
+                        <td>2024-08-02</td>
+                    </tr>
+                    <tr>
+                        <td>Customer service was helpful but response time could be better</td>
+                        <td><span class="sentiment-tag sentiment-neutral">neutral</span></td>
+                        <td>0.15</td>
+                        <td>Support</td>
+                        <td>Service</td>
+                        <td>2024-08-01</td>
+                    </tr>
+                    <tr>
+                        <td>Payment process is seamless and secure</td>
+                        <td><span class="sentiment-tag sentiment-positive">positive</span></td>
+                        <td>0.68</td>
+                        <td>Website</td>
+                        <td>Payment</td>
+                        <td>2024-08-03</td>
+                    </tr>
+                    <tr>
+                        <td>The interface is confusing and hard to navigate</td>
+                        <td><span class="sentiment-tag sentiment-negative">negative</span></td>
+                        <td>-0.55</td>
+                        <td>Website</td>
+                        <td>UI/UX</td>
+                        <td>2024-08-02</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Pie Chart for Overall Sentiment
+        const sentimentCtx = document.getElementById('sentimentPie').getContext('2d');
+        new Chart(sentimentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Positive', 'Negative', 'Neutral'],
+                datasets: [{
+                    data: [68, 22, 10],
+                    backgroundColor: ['#27ae60', '#e74c3c', '#95a5a6'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Category Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['UI/UX', 'Performance', 'Features', 'Service', 'Payment', 'Delivery'],
+                datasets: [
+                    {
+                        label: 'Positive',
+                        data: [12, 5, 18, 22, 19, 26],
+                        backgroundColor: '#27ae60'
+                    },
+                    {
+                        label: 'Negative',
+                        data: [7, 15, 5, 3, 2, 3],
+                        backgroundColor: '#e74c3c'
+                    },
+                    {
+                        label: 'Neutral',
+                        data: [3, 2, 4, 5, 1, 2],
+                        backgroundColor: '#95a5a6'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['07-28', '07-29', '07-30', '07-31', '08-01', '08-02', '08-03', '08-04'],
+                datasets: [
+                    {
+                        label: 'Positive',
+                        data: [65, 58, 70, 67, 75, 62, 68, 72],
+                        borderColor: '#27ae60',
+                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Negative',
+                        data: [25, 32, 18, 21, 16, 26, 22, 18],
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 80
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
