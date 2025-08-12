@@ -3,9 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Feedback Sentiment Dashboard</title>
+    <title>Voice of Customer Analytics - Interactive Dashboard</title>
+    <!-- Modern Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
+        /* Global styles and variables */
+        :root {
+            /* Light Theme */
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --background-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #333;
+            --text-light: #fff;
+            --positive: #2ecc71;
+            --neutral: #f39c12;
+            --negative: #e74c3c;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-heavy: rgba(0,0,0,0.3);
+            --alert-info-bg: #d1ecf1;
+            --alert-info-border: #bee5eb;
+            --alert-info-text: #0c5460;
+            --alert-warning-bg: #fff3cd;
+            --alert-warning-border: #ffeaa7;
+            --alert-warning-text: #664d03;
+            --alert-danger-bg: #f8d7da;
+            --alert-danger-border: #f5c6cb;
+            --alert-danger-text: #58151c;
+            --input-bg: #fff;
+            --input-border: #e0e0e0;
+            --accordion-bg: #f8f9ff;
+        }
+
+        /* Dark Theme */
+        body.dark-mode {
+            --primary-color: #9f7aea;
+            --secondary-color: #6d28d9;
+            --background-gradient: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            --card-bg: rgba(45, 55, 72, 0.95);
+            --text-dark: #e2e8f0;
+            --text-light: #1a202c;
+            --positive: #68d391;
+            --neutral: #f6ad55;
+            --negative: #f56565;
+            --shadow-light: rgba(0,0,0,0.2);
+            --shadow-medium: rgba(0,0,0,0.3);
+            --shadow-heavy: rgba(0,0,0,0.6);
+            --alert-info-bg: #2b3a4a;
+            --alert-info-border: #3c5469;
+            --alert-info-text: #b2e0e5;
+            --alert-warning-bg: #4a3c2b;
+            --alert-warning-border: #69543c;
+            --alert-warning-text: #ffeb95;
+            --alert-danger-bg: #4a2b2b;
+            --alert-danger-border: #693c3c;
+            --alert-danger-text: #f5c6cb;
+            --input-bg: #2d3748;
+            --input-border: #4a5568;
+            --accordion-bg: #2d3748;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -13,487 +77,905 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            background: var(--background-gradient);
+            min-height: 100vh;
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background 0.5s ease, color 0.5s ease;
         }
 
-        .header {
-            background: white;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+        }
+
+        /* Header section styling */
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px var(--shadow-light);
+            text-align: center;
+            position: relative;
         }
 
         .header h1 {
-            font-size: 24px;
-            color: #2c3e50;
-            margin-bottom: 5px;
+            font-size: 2.8rem;
+            background: var(--background-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            font-weight: 700;
         }
 
         .header p {
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-
-        .filters {
-            display: flex;
-            gap: 15px;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            opacity: 0.8;
             margin-bottom: 20px;
-            padding: 0 20px;
         }
 
-        .filter-group select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
+        .role-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
-        .dashboard {
+        .badge {
+            background: var(--background-gradient);
+            color: var(--text-light);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .dark-mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px var(--shadow-light);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .dark-mode-toggle i {
+            color: var(--text-dark);
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Card and Grid layout */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 0 20px;
-            max-width: 1400px;
-            margin: 0 auto;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
         .card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px var(--shadow-medium);
         }
 
         .card h3 {
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-
-        .sentiment-pie {
-            grid-column: 1 / -1;
-            text-align: center;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin: 20px 0;
-        }
-
-        .chart-small {
-            height: 200px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            color: var(--text-dark);
             margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .positive { color: #27ae60; }
-        .negative { color: #e74c3c; }
-        .neutral { color: #95a5a6; }
-
-        .issues-list {
-            grid-column: 1 / -1;
-        }
-
-        .issue-item {
+            font-size: 1.4rem;
             display: flex;
-            justify-content: between;
             align-items: center;
-            padding: 12px;
-            border-left: 4px solid #e74c3c;
-            background: #fff5f5;
-            margin-bottom: 8px;
-            border-radius: 4px;
+            gap: 10px;
+            font-weight: 600;
+        }
+        
+        .card h3 i {
+            background: var(--background-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .issue-item.medium {
-            border-left-color: #f39c12;
-            background: #fffbf0;
+        /* Metric card specific styling */
+        .metric-card {
+            text-align: center;
+            background: var(--background-gradient);
+            color: var(--text-light);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+            animation: scaleIn 0.8s ease-out;
         }
 
-        .issue-content {
-            flex-grow: 1;
-        }
-
-        .issue-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
+        .metric-value {
+            font-size: 3rem;
             font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .high { background: #ffebee; color: #c62828; }
-        .medium { background: #fff8e1; color: #ef6c00; }
-
-        .feature-list {
-            grid-column: 1 / -1;
+        .metric-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
         }
 
-        .feature-item {
+        .metric-trend {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        /* Controls and Buttons */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-control {
+            flex-grow: 1;
+            min-width: 150px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--input-border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--input-bg);
+            color: var(--text-dark);
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            background: var(--background-gradient);
+            color: var(--text-light);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 12px 20px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        button .loading-icon {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Ripple effect for buttons */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple-effect 0.6s linear;
+        }
+
+        /* Accordion styles */
+        .accordion-item {
+            margin-bottom: 15px;
+            background: var(--accordion-bg);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary-color);
+            transition: border-left-color 0.3s ease;
+        }
+
+        .accordion-header {
+            padding: 20px;
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
-            border-left: 4px solid #27ae60;
-            background: #f0f9f0;
-            margin-bottom: 8px;
-            border-radius: 4px;
+            transition: background-color 0.2s ease;
         }
 
-        .feedback-table {
-            grid-column: 1 / -1;
-            overflow-x: auto;
+        .accordion-header:hover {
+            background-color: rgba(102, 126, 234, 0.05);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
+        .accordion-header h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
         }
 
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
         }
 
-        th {
-            background: #f8f9fa;
+        .accordion-content {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .accordion-item.active .accordion-content {
+            padding: 20px;
+            max-height: 500px; /* Adjust to a value larger than content */
+        }
+        
+        .priority-high { border-left-color: var(--negative); }
+        .priority-medium { border-left-color: var(--neutral); }
+        .priority-low { border-left-color: var(--positive); }
+
+        .request-item {
+            background: var(--accordion-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .request-item:hover {
+            background-color: var(--input-border);
+        }
+
+        .request-priority {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+
+        .canvas-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-card {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: var(--text-light);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.5s ease;
+        }
+        
+        .footer-card h4 {
+            color: var(--text-light);
+            margin-bottom: 15px;
             font-weight: 600;
         }
-
-        .sentiment-tag {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
+        
+        /* Alert boxes */
+        .alert {
+            border-left: 5px solid;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
         }
 
-        .sentiment-positive { background: #d4edda; color: #155724; }
-        .sentiment-negative { background: #f8d7da; color: #721c24; }
-        .sentiment-neutral { background: #d1ecf1; color: #0c5460; }
+        .alert.alert-warning {
+            background: var(--alert-warning-bg);
+            border-color: var(--alert-warning-border);
+            color: var(--alert-warning-text);
+        }
+        .alert.alert-danger {
+            background: var(--alert-danger-bg);
+            border-color: var(--alert-danger-border);
+            color: var(--alert-danger-text);
+        }
+        .alert.alert-info {
+            background: var(--alert-info-bg);
+            border-color: var(--alert-info-border);
+            color: var(--alert-info-text);
+        }
+        
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 250px;
+            max-width: 350px;
+            transform: translateX(120%);
+            animation: toast-slide-in 0.5s forwards cubic-bezier(0.2, 0.6, 0.2, 1);
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .toast.hide {
+            animation: toast-slide-out 0.5s forwards cubic-bezier(0.8, 0.4, 0.8, 0.2);
+        }
+
+        .toast .icon {
+            font-size: 1.5rem;
+        }
+        .toast.success .icon { color: var(--positive); }
+        .toast.info .icon { color: var(--primary-color); }
+        .toast.error .icon { color: var(--negative); }
+
+        /* Keyframe animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes ripple-effect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes toast-slide-in {
+            from { opacity: 0; transform: translateX(120%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes toast-slide-out {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(120%); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            select, button {
+                width: 100%;
+            }
+            .dark-mode-toggle {
+                top: 10px;
+                right: 10px;
+                width: 35px;
+                height: 35px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Customer Feedback Sentiment Dashboard</h1>
-        <p>Real-time insights from customer feedback analysis using NLP</p>
+    <div class="container">
+        <div class="header">
+            <h1>Voice of Customer Analytics Platform</h1>
+            <p>Transforming 50K+ Customer Reviews into Actionable Business Intelligence</p>
+            <div class="role-badges">
+                <span class="badge">Data Scientist</span>
+                <span class="badge">Business Analyst</span>
+                <span class="badge">Team Lead</span>
+            </div>
+            <div id="darkModeToggle" class="dark-mode-toggle" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="metric-card">
+                <div class="metric-value" id="totalReviews">52,847</div>
+                <div class="metric-label">Total Reviews Processed</div>
+                <div class="metric-trend">↗ +12% this month</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="accuracy">87.3%</div>
+                <div class="metric-label">Sentiment Accuracy</div>
+                <div class="metric-trend">↗ +2.3% improvement</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="insights">34</div>
+                <div class="metric-label">Actionable Insights</div>
+                <div class="metric-trend">→ 28 implemented</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3><i class="fas fa-chart-pie"></i> Sentiment Distribution</h3>
+                <div class="sentiment-distribution">
+                    <div class="sentiment-item positive">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: var(--positive);">64.2%</div>
+                        <div style="color: var(--text-dark);">Positive</div>
+                    </div>
+                    <div class="sentiment-item neutral">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: var(--neutral);">21.5%</div>
+                        <div style="color: var(--text-dark);">Neutral</div>
+                    </div>
+                    <div class="sentiment-item negative">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: var(--negative);">14.3%</div>
+                        <div style="color: var(--text-dark);">Negative</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <div class="form-control">
+                        <select id="timeFilter">
+                            <option>Last 30 days</option>
+                            <option>Last 3 months</option>
+                            <option>Last 6 months</option>
+                        </select>
+                    </div>
+                    <button id="refreshButton" onclick="updateSentimentData(event)">
+                        <span class="button-text">Refresh Data</span>
+                        <i class="fas fa-sync-alt loading-icon" style="display: none;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-chart-line"></i> Sentiment Trends</h3>
+                <div class="canvas-container">
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-dark); opacity: 0.7; margin-top: 10px;">
+                    <strong>Business Impact:</strong> 15% improvement in customer satisfaction after addressing negative sentiment drivers
+                </p>
+            </div>
+        </div>
+
+        <div class="insights-section">
+            <h2><i class="fas fa-bullseye"></i> Strategic Insights & Business Intelligence</h2>
+            <div class="dashboard-grid">
+                <div>
+                    <h4 style="margin-bottom: 15px; color: var(--text-dark);">Top Pain Points (Leadership Priority)</h4>
+                    <div class="accordion-item priority-high">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span><strong>Mobile App Performance</strong></span>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><small>Mentioned in 23% of negative reviews | Impact: High | Team: Mobile Dev</small></p>
+                            <p style="margin-top: 10px;">Detailed analysis shows crashes on iOS 17 and slow loading on Android devices. An immediate patch is required.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item priority-high">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span><strong>Customer Support Response Time</strong></span>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><small>Average complaint: 48+ hours | Impact: Critical | Team: Support</small></p>
+                            <p style="margin-top: 10px;">Customer feedback highlights frustration with long wait times. We're recommending a new chatbot and hiring two new support agents to mitigate this.</p>
+                        </div>
+                    </div>
+                    <div class="accordion-item priority-medium">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span><strong>Payment Process Friction</strong></span>
+                            <i class="fas fa-chevron-down accordion-icon"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <p><small>12% abandonment rate | Impact: Revenue | Team: Product</small></p>
+                            <p style="margin-top: 10px;">Users are dropping off at the payment stage. Investigating a simplified 1-click checkout option and integration with more payment providers.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="margin-bottom: 15px; color: var(--text-dark);">Feature Request Pipeline</h4>
+                    <div class="feature-requests">
+                        <div class="request-item">
+                            <div>
+                                <strong>Dark Mode Interface</strong><br>
+                                <small>Requested by 2,847 users</small>
+                            </div>
+                            <span class="request-priority" style="background: var(--negative);">High Priority</span>
+                        </div>
+                        <div class="request-item">
+                            <div>
+                                <strong>Advanced Search Filters</strong><br>
+                                <small>Requested by 1,923 users</small>
+                            </div>
+                            <span class="request-priority" style="background: var(--neutral);">Medium Priority</span>
+                        </div>
+                        <div class="request-item">
+                            <div>
+                                <strong>Offline Mode Support</strong><br>
+                                <small>Requested by 1,456 users</small>
+                            </div>
+                            <span class="request-priority" style="background: var(--neutral);">Medium Priority</span>
+                        </div>
+                        <div class="request-item">
+                            <div>
+                                <strong>Social Media Integration</strong><br>
+                                <small>Requested by 876 users</small>
+                            </div>
+                            <span class="request-priority" style="background: var(--positive);">Low Priority</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3><i class="fas fa-bell"></i> Real-time Issue Detection</h3>
+                <div class="alert alert-warning">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Alert Triggered:</strong> Spike in "login issues" mentioned 47 times in last 2 hours
+                </div>
+                <div class="alert alert-danger">
+                    <strong><i class="fas fa-times-circle"></i> Critical:</strong> Payment gateway complaints increased 340% since yesterday
+                </div>
+                <div class="alert alert-info">
+                    <strong><i class="fas fa-check-circle"></i> Positive Trend:</strong> "Easy to use" mentions up 28% after UI update
+                </div>
+                <button onclick="generateReport(event)" style="margin-top: 15px; width: 100%;">Generate Detailed Report</button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-microchip"></i> NLP Model Performance</h3>
+                <div class="canvas-container">
+                    <canvas id="accuracyChart"></canvas>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 0.9rem; color: var(--text-dark); opacity: 0.8;">
+                    <span><strong>Precision:</strong> 89.1%</span>
+                    <span><strong>Recall:</strong> 85.7%</span>
+                    <span><strong>F1-Score:</strong> 87.3%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-card">
+            <h4>Technology Stack & Business Impact</h4>
+            <p style="color: rgba(255, 255, 255, 0.9); line-height: 1.6;">
+                <strong>Tech Stack:</strong> Python (NLTK, spaCy, scikit-learn), SQL Server, Power BI, Azure ML<br>
+                <strong>Business Results:</strong> 23% reduction in churn, 15% increase in NPS, $2.3M revenue impact from feature prioritization<br>
+                <strong>Team Leadership:</strong> Led cross-functional team of 8 data scientists and analysts, established data-driven product culture
+            </p>
+        </div>
     </div>
 
-    <div class="filters">
-        <div class="filter-group">
-            <select>
-                <option>Last 7 days</option>
-                <option>Last 30 days</option>
-                <option>Last 90 days</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <select>
-                <option>All Products</option>
-                <option>Mobile App</option>
-                <option>Website</option>
-                <option>Support</option>
-            </select>
-        </div>
-        <div class="filter-group">
-            <select>
-                <option>All Sentiments</option>
-                <option>Positive</option>
-                <option>Negative</option>
-                <option>Neutral</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="dashboard">
-        <!-- Overall Stats -->
-        <div class="card sentiment-pie">
-            <h3>Overall Sentiment Distribution</h3>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">1,247</div>
-                    <div class="stat-label">Total Feedback</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number positive">68%</div>
-                    <div class="stat-label">Positive Sentiment</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number negative">22%</div>
-                    <div class="stat-label">Negative Sentiment</div>
-                </div>
-            </div>
-            <div class="chart-container chart-small">
-                <canvas id="sentimentPie"></canvas>
-            </div>
-        </div>
-
-        <!-- Category Analysis -->
-        <div class="card">
-            <h3>Sentiment by Category</h3>
-            <div class="chart-container chart-small">
-                <canvas id="categoryChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Trend Analysis -->
-        <div class="card">
-            <h3>Sentiment Trend Over Time</h3>
-            <div class="chart-container chart-small">
-                <canvas id="trendChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Top Issues -->
-        <div class="card issues-list">
-            <h3>Top Issues</h3>
-            <div class="issue-item">
-                <div class="issue-content">
-                    <strong>App crashes</strong><br>
-                    <small>45 mentions</small>
-                </div>
-                <span class="issue-badge high">high</span>
-            </div>
-            <div class="issue-item medium">
-                <div class="issue-content">
-                    <strong>Slow loading</strong><br>
-                    <small>32 mentions</small>
-                </div>
-                <span class="issue-badge medium">medium</span>
-            </div>
-            <div class="issue-item medium">
-                <div class="issue-content">
-                    <strong>Navigation confusion</strong><br>
-                    <small>28 mentions</small>
-                </div>
-                <span class="issue-badge medium">medium</span>
-            </div>
-            <div class="issue-item">
-                <div class="issue-content">
-                    <strong>Payment errors</strong><br>
-                    <small>15 mentions</small>
-                </div>
-                <span class="issue-badge high">high</span>
-            </div>
-        </div>
-
-        <!-- Feature Requests -->
-        <div class="card feature-list">
-            <h3>Top Feature Requests</h3>
-            <div class="feature-item">
-                <div class="issue-content">
-                    <strong>Dark mode</strong><br>
-                    <small>67 requests</small>
-                </div>
-                <span class="issue-badge high">high</span>
-            </div>
-            <div class="feature-item">
-                <div class="issue-content">
-                    <strong>Offline mode</strong><br>
-                    <small>54 requests</small>
-                </div>
-                <span class="issue-badge high">high</span>
-            </div>
-            <div class="feature-item">
-                <div class="issue-content">
-                    <strong>Better search</strong><br>
-                    <small>43 requests</small>
-                </div>
-                <span class="issue-badge medium">medium</span>
-            </div>
-            <div class="feature-item">
-                <div class="issue-content">
-                    <strong>Push notifications</strong><br>
-                    <small>38 requests</small>
-                </div>
-                <span class="issue-badge medium">medium</span>
-            </div>
-        </div>
-
-        <!-- Recent Feedback -->
-        <div class="card feedback-table">
-            <h3>Recent Feedback (8 items)</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Feedback</th>
-                        <th>Sentiment</th>
-                        <th>Score</th>
-                        <th>Product</th>
-                        <th>Category</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>The new update is amazing! Love the dark mode feature.</td>
-                        <td><span class="sentiment-tag sentiment-positive">positive</span></td>
-                        <td>0.85</td>
-                        <td>Mobile App</td>
-                        <td>UI/UX</td>
-                        <td>2024-08-01</td>
-                    </tr>
-                    <tr>
-                        <td>App crashes frequently after the latest update</td>
-                        <td><span class="sentiment-tag sentiment-negative">negative</span></td>
-                        <td>-0.72</td>
-                        <td>Mobile App</td>
-                        <td>Performance</td>
-                        <td>2024-08-02</td>
-                    </tr>
-                    <tr>
-                        <td>Customer service was helpful but response time could be better</td>
-                        <td><span class="sentiment-tag sentiment-neutral">neutral</span></td>
-                        <td>0.15</td>
-                        <td>Support</td>
-                        <td>Service</td>
-                        <td>2024-08-01</td>
-                    </tr>
-                    <tr>
-                        <td>Payment process is seamless and secure</td>
-                        <td><span class="sentiment-tag sentiment-positive">positive</span></td>
-                        <td>0.68</td>
-                        <td>Website</td>
-                        <td>Payment</td>
-                        <td>2024-08-03</td>
-                    </tr>
-                    <tr>
-                        <td>The interface is confusing and hard to navigate</td>
-                        <td><span class="sentiment-tag sentiment-negative">negative</span></td>
-                        <td>-0.55</td>
-                        <td>Website</td>
-                        <td>UI/UX</td>
-                        <td>2024-08-02</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <!-- Toast container -->
+    <div id="toast-container"></div>
 
     <script>
-        // Pie Chart for Overall Sentiment
-        const sentimentCtx = document.getElementById('sentimentPie').getContext('2d');
-        new Chart(sentimentCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Positive', 'Negative', 'Neutral'],
-                datasets: [{
-                    data: [68, 22, 10],
-                    backgroundColor: ['#27ae60', '#e74c3c', '#95a5a6'],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
+        // Initialize charts and data
+        let sentimentChart, accuracyChart;
+        
+        // Helper function to add ripple effect to buttons
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+            circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+            circle.classList.add('ripple');
+
+            const oldRipple = button.getElementsByClassName('ripple')[0];
+            if (oldRipple) {
+                oldRipple.remove();
             }
+
+            button.appendChild(circle);
+        }
+
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', createRipple);
         });
 
-        // Category Chart
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        new Chart(categoryCtx, {
-            type: 'bar',
-            data: {
-                labels: ['UI/UX', 'Performance', 'Features', 'Service', 'Payment', 'Delivery'],
-                datasets: [
-                    {
-                        label: 'Positive',
-                        data: [12, 5, 18, 22, 19, 26],
-                        backgroundColor: '#27ae60'
-                    },
-                    {
-                        label: 'Negative',
-                        data: [7, 15, 5, 3, 2, 3],
-                        backgroundColor: '#e74c3c'
-                    },
-                    {
-                        label: 'Neutral',
-                        data: [3, 2, 4, 5, 1, 2],
-                        backgroundColor: '#95a5a6'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        stacked: true
-                    },
-                    y: {
-                        stacked: true,
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+        // Function to show a loading state for buttons
+        function setLoading(button, isLoading) {
+            const buttonText = button.querySelector('.button-text');
+            let loadingIcon = button.querySelector('.loading-icon');
 
-        // Trend Chart
-        const trendCtx = document.getElementById('trendChart').getContext('2d');
-        new Chart(trendCtx, {
-            type: 'line',
-            data: {
-                labels: ['07-28', '07-29', '07-30', '07-31', '08-01', '08-02', '08-03', '08-04'],
-                datasets: [
-                    {
+            if (!loadingIcon) {
+                loadingIcon = document.createElement('i');
+                loadingIcon.classList.add('fas', 'fa-sync-alt', 'loading-icon');
+                loadingIcon.style.display = 'none';
+                button.appendChild(loadingIcon);
+            }
+
+            if (isLoading) {
+                buttonText.style.display = 'none';
+                loadingIcon.style.display = 'inline-block';
+                button.disabled = true;
+                button.style.cursor = 'not-allowed';
+            } else {
+                buttonText.style.display = 'inline-block';
+                loadingIcon.style.display = 'none';
+                button.disabled = false;
+                button.style.cursor = 'pointer';
+            }
+        }
+
+        // Custom toast notification functions
+        function showToast(message, type = 'info', duration = 3000) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.classList.add('toast', type);
+
+            let iconClass = '';
+            if (type === 'success') {
+                iconClass = 'fa-check-circle';
+            } else if (type === 'error') {
+                iconClass = 'fa-exclamation-circle';
+            } else {
+                iconClass = 'fa-info-circle';
+            }
+
+            toast.innerHTML = `<i class="fas ${iconClass} icon"></i><span>${message}</span>`;
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('hide');
+                toast.addEventListener('animationend', () => toast.remove());
+            }, duration);
+        }
+
+        // Toggle Dark Mode
+        function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            const toggleIcon = document.getElementById('darkModeToggle').querySelector('i');
+            if (isDarkMode) {
+                toggleIcon.classList.remove('fa-moon');
+                toggleIcon.classList.add('fa-sun');
+            } else {
+                toggleIcon.classList.remove('fa-sun');
+                toggleIcon.classList.add('fa-moon');
+            }
+            // Update charts colors on theme change
+            if (sentimentChart) sentimentChart.destroy();
+            if (accuracyChart) accuracyChart.destroy();
+            initializeCharts();
+        }
+
+        // Accordion functionality
+        function toggleAccordion(header) {
+            const item = header.closest('.accordion-item');
+            item.classList.toggle('active');
+        }
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            // Apply dark mode if user's preference is saved
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').querySelector('i').classList.remove('fa-moon');
+                document.getElementById('darkModeToggle').querySelector('i').classList.add('fa-sun');
+            }
+            initializeCharts();
+            simulateRealTimeUpdates();
+        }
+
+        function initializeCharts() {
+            createSentimentChart();
+            createAccuracyChart();
+        }
+
+        function createSentimentChart() {
+            const ctx = document.getElementById('sentimentChart').getContext('2d');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const textColor = isDarkMode ? 'var(--text-dark)' : '#666';
+            const gridColor = isDarkMode ? '#4a5568' : '#e0e0e0';
+
+            sentimentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
                         label: 'Positive',
-                        data: [65, 58, 70, 67, 75, 62, 68, 72],
-                        borderColor: '#27ae60',
-                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                        fill: true
-                    },
-                    {
+                        data: [58, 62, 65, 63, 66, 64],
+                        borderColor: 'var(--positive)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        tension: 0.4
+                    }, {
                         label: 'Negative',
-                        data: [25, 32, 18, 21, 16, 26, 22, 18],
-                        borderColor: '#e74c3c',
+                        data: [18, 16, 15, 17, 14, 14],
+                        borderColor: 'var(--negative)',
                         backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 80
+                        tension: 0.4
+                    }, {
+                        label: 'Neutral',
+                        data: [24, 22, 20, 20, 20, 22],
+                        borderColor: 'var(--neutral)',
+                        backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: 'Inter'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: 'Inter'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { color: gridColor },
+                            ticks: {
+                                color: textColor,
+                                font: {
+                                    family: 'Inter'
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
+
+        function createAccuracyChart() {
+            const ctx = document.getElementById('accuracyChart').getContext('2d');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            const textColor = isDarkMode ? 'var(--text-dark)' : '#666';
+            const correctColor = isDarkMode ? '#68d391' : 'var(--primary-color)';
+            const incorrectColor = isDarkMode ? '#4a5568' : '#e0e6ff';
+
+            accuracyChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Correct Predictions', 'Incorrect Predictions'],
+                    datasets: [{
+                        data: [87.3, 12.7],
+                        backgroundColor: [correctColor, incorrectColor],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: 'Inter'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSentimentData(event) {
+            const button = event.target;
+            setLoading(button, true);
+            
+            setTimeout(() => {
+                document.getElementById('totalReviews').textContent = (Math.floor(Math.random() * 1000) + 52000).toLocaleString();
+                document.getElementById('accuracy').textContent = (87 + Math.random() * 3).toFixed(1) + '%';
+                document.getElementById('insights').textContent = Math.floor(Math.random() * 10) + 30;
+                
+                showToast('Dashboard data refreshed successfully!', 'success');
+                setLoading(button, false);
+            }, 1500);
+        }
+
+        function generateReport(event) {
+            const button = event.target;
+            setLoading(button, true);
+            
+            setTimeout(() => {
+                showToast('Executive report generated and sent to stakeholders.', 'info');
+                setLoading(button, false);
+            }, 2000);
+        }
+
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                const reviews = document.getElementById('totalReviews');
+                let currentValue = parseInt(reviews.textContent.replace(/,/g, ''));
+                const newValue = (currentValue + Math.floor(Math.random() * 5)).toLocaleString();
+                reviews.textContent = newValue;
+                showToast(`New reviews processed. Total: ${newValue}`, 'info', 2000);
+            }, 30000);
+        }
+
+        // Initialize the dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initializeDashboard);
     </script>
 </body>
 </html>
