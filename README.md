@@ -1,182 +1,167 @@
-# Customer Insights Dashboard with Sentiment Analysis
+Got it\! Here is the `README.md` file again, with "Customer Feedback Sentiment Analysis System 2025" integrated as the main title, and some minor tweaks for flow.
 
-A full-stack web application prototype that processes and classifies customer reviews using Natural Language Processing (NLP) and visualizes the insights on a dynamic, real-time dashboard.
+-----
 
-## 📋 Project Overview
+**File: `README.md`**
 
-This project performs **Sentiment Analysis** on textual data to classify it as **Positive**, **Negative**, or **Neutral**. It combines a sophisticated data analysis backend (developed in a Python environment) with an interactive frontend to provide immediate insights into customer feedback.
+````markdown
+# Customer Feedback Sentiment Analysis System 2025
 
-The dashboard showcases key metrics, visualizes sentiment distribution, and allows for the real-time analysis of new customer reviews, simulating a complete end-to-end application.
+## 📊 Project Overview
 
-## ✨ Features
+This project presents a dynamic web application designed for real-time sentiment analysis of customer feedback. Utilizing a state-of-the-art pre-trained RoBERTa model, it classifies incoming feedback into positive, negative, or neutral sentiments. The system provides an interactive dashboard for visualizing sentiment distribution and reviewing individual feedback entries.
 
-- **Dynamic Dashboard**: An interactive and responsive interface built with Tailwind CSS and Chart.js to visualize sentiment data
-- **Real-time Analysis**: Submit a new customer review and see its sentiment classification instantly update the dashboard metrics
-- **Overall Sentiment Metrics**: Quickly view the total number of reviews and the percentage breakdown of positive, negative, and neutral sentiments
-- **Sentiment Distribution**: A doughnut chart provides an at-a-glance view of the sentiment proportions
-- **Detailed Review List**: Browse through recent reviews, each tagged with its classified sentiment and confidence score
-- **In-depth Analysis Modal**: An integrated modal window explains the underlying data science process, tools, and methodologies used
+The application is architected with a Flask backend responsible for handling the API and sentiment analysis, complemented by a modern and responsive HTML/CSS/JavaScript frontend to ensure an engaging user experience.
 
-## 🏗️ Architecture: From Prototype to Production
+## ✨ Key Features
 
-This repository contains a self-contained **prototype** that demonstrates the complete functionality of the application in a single HTML file. This approach is excellent for rapid development and showcasing the user experience.
+* **Real-time Sentiment Analysis:** Leverages the `cardiffnlp/twitter-roberta-base-sentiment` model for accurate and instant sentiment classification.
+* **Interactive Dashboard:**
+    * **Live Sentiment Counts:** Displays real-time, animated counts of positive, negative, and neutral feedback.
+    * **Visual Distribution:** An intuitive doughnut chart visualizes the overall sentiment breakdown.
+    * **Recent Feedback Stream:** A chronological list of submitted feedback, complete with sentiment badges and timestamps.
+    * **Dynamic Filtering:** Easily filter the recent feedback list by sentiment type (All, Positive, Negative, Neutral).
+* **Persistent Data Storage:** All submitted feedback and their analyzed sentiments are securely stored in a local SQLite database (`sentiment.db`).
+* **Modern & Responsive UI:** Crafted with a clean, intuitive, and mobile-friendly interface.
+* **Automatic Updates:** Dashboard data automatically refreshes every 30 seconds to reflect the latest insights.
+* **Developer-Friendly Architecture:** Clear separation of frontend and backend concerns for easier development and maintenance.
 
-### Current Architecture (Prototype)
-```
-Single HTML File
-├── Frontend (HTML + CSS + JavaScript)
-├── Simulated Backend Logic
-└── Mock Data Storage
-```
+## 🚀 Technologies Used
 
-### Production-Ready Architecture
+* **Backend:**
+    * Python 3.x
+    * **Flask:** Web framework for building the API endpoints.
+    * **Transformers (Hugging Face):** Essential for loading and utilizing the RoBERTa sentiment model.
+    * **PyTorch / NumPy / SciPy:** Core libraries underpinning the model's operation and numerical computations.
+    * **SQLite3:** A lightweight, serverless database for local data persistence.
+* **Frontend:**
+    * **HTML5 & CSS3:** For structuring and styling a modern, engaging user interface.
+    * **JavaScript (ES6+):** Powers dynamic interactions, asynchronous API calls, and chart rendering.
+    * **Chart.js:** An open-source JavaScript library for creating interactive data visualizations.
+    * **Google Fonts (Poppins):** Enhances typography for a professional look.
 
-To transition this project to a true, production-ready full-stack application, the following architecture would be implemented:
+## 🛠️ Setup and Installation
 
-#### Frontend
-- The existing HTML, CSS, and JavaScript would be structured as a standalone frontend application (e.g., using a framework like **React** or **Vue**)
-- Responsible for rendering the UI and making API calls
+Follow these steps to set up and run the project on your local machine.
 
-#### Backend API
-- A dedicated server built using Python with a framework like **Flask** or **FastAPI**
-- Hosts the trained NLP model
-- Exposes API endpoints (e.g., `/api/reviews`, `/api/analyze`)
-- The frontend communicates with this server instead of the current JavaScript simulation
+### 1. Clone the Repository
 
-#### Database
-- A persistent database (like **PostgreSQL** or **MongoDB**) to store and manage all customer reviews
-- The backend server handles all database interactions
+First, clone the project from GitHub:
 
-```
-Production Architecture
-├── Frontend (React/Vue/Angular)
-│   ├── Components
-│   ├── Services (API calls)
-│   └── State Management
-├── Backend API (Flask/FastAPI)
-│   ├── Routes/Endpoints
-│   ├── NLP Model
-│   ├── Business Logic
-│   └── Database Integration
-└── Database (PostgreSQL/MongoDB)
-    ├── Reviews Collection
-    ├── User Data
-    └── Analytics Data
-```
-
-This separation of concerns is standard for scalable and maintainable web applications.
-
-## 🔬 Data Analysis Engine
-
-The core of this project is the NLP sentiment analysis model. Here's a breakdown of the process and technology behind it:
-
-### Tools & Libraries Used
-
-- **NLTK (Natural Language Toolkit)**: For text preprocessing, tokenization, and sentiment analysis
-- **Pandas**: For efficient data manipulation and analysis
-- **NumPy**: For numerical operations and handling arrays
-- **Matplotlib & Seaborn**: To create visualizations showing sentiment distribution, word frequency, and trends
-
-### Analysis Workflow
-
-1. **Data Cleaning & Preprocessing**
-   - Removing noise from text data
-   - Stripping stop words
-   - Performing tokenization to prepare the text for analysis
-
-2. **Exploratory Data Analysis (EDA)**
-   - Generating visual insights into the dataset
-   - Understanding dataset characteristics and patterns
-
-3. **Sentiment Classification**
-   - Using a rule-based approach with NLTK's built-in Sentiment Analyzer (VADER)
-   - Classifying text into positive, negative, or neutral categories
-
-4. **Visualization**
-   - Creating clear visual representations of sentiment outcomes
-   - Communicating results effectively through charts and graphs
-
-5. **Conclusion & Learnings**
-   - Drawing insights and conclusions from the analysis
-   - Identifying trends and patterns in customer feedback
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- Python 3.7+ (for backend development)
-- Node.js (for production frontend setup)
-
-### Running the Prototype
-1. Clone this repository
-2. Open `index.html` in your web browser
-3. Interact with the dashboard and try the real-time sentiment analysis
-
-### Setting Up for Development
-
-#### Backend Setup
 ```bash
-pip install nltk pandas numpy matplotlib seaborn flask
+git clone [https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git)
+cd YOUR_REPO_NAME
 ```
 
-#### Frontend Setup (for production)
+*(**Important:** Remember to replace `YOUR_USERNAME` and `YOUR_REPO_NAME` with your actual GitHub username and repository name.)*
+
+### 2. Create and Activate a Python Virtual Environment
+
+It's highly recommended to use a virtual environment to manage dependencies.
+
 ```bash
-npm install react react-dom chart.js tailwindcss
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Windows:
+.\venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
 ```
 
-## 📊 Dashboard Features
+### 3. Install Required Python Dependencies
 
-### Metrics Overview
-- Total reviews processed
-- Sentiment distribution percentages
-- Real-time updates
+Generate a `requirements.txt` file (if you haven't already done so by running `pip freeze > requirements.txt` after installing your packages) and then install the dependencies:
 
-### Interactive Charts
-- Doughnut chart for sentiment distribution
-- Historical trend analysis
-- Confidence score visualization
+```bash
+pip install -r requirements.txt
+```
 
-### Review Management
-- Add new reviews for instant analysis
-- View detailed sentiment scores
-- Browse historical review data
+*(Ensure your `requirements.txt` includes `flask`, `transformers`, `torch` (or `torch-cpu`), `scipy`, `numpy`, and `huggingface_hub`.)*
 
-## 🛠️ Technical Implementation
+### 4. Configure Hugging Face Cache Directory (Optional but Recommended)
 
-### Sentiment Analysis Model
-- **Algorithm**: VADER (Valence Aware Dictionary and sEntiment Reasoner)
-- **Accuracy**: Rule-based approach optimized for social media text
-- **Output**: Compound score ranging from -1 (most negative) to +1 (most positive)
+The RoBERTa model is approximately 500MB and is downloaded by the `transformers` library to a default cache location (typically `C:\Users\<YourUsername>\.cache\huggingface`). If your C: drive has limited space, you can redirect this cache to another drive (e.g., D:).
 
-### Frontend Technologies
-- **Styling**: Tailwind CSS for responsive design
-- **Charts**: Chart.js for interactive data visualization
-- **JavaScript**: Vanilla JS for prototype, framework-ready for production
+* **For the current terminal session:**
+    * **Windows PowerShell:**
+        ```powershell
+        $env:HF_HOME="D:\huggingface_cache"
+        ```
+    * **macOS/Linux (Bash/Zsh):**
+        ```bash
+        export HF_HOME="/path/to/your/preferred/cache/directory"
+        ```
+* **For permanent system-wide configuration (Windows):**
+    1.  Search for "Edit the system environment variables" in your Start Menu.
+    2.  Click the "Environment Variables..." button.
+    3.  Under "User variables for [Your Username]", click "New...".
+    4.  Set `Variable name`: `HF_HOME`
+    5.  Set `Variable value`: `D:\huggingface_cache` (or your desired path on D:).
+    6.  Click OK on all windows. **A terminal/IDE restart is required for changes to take effect.**
 
-## 📈 Future Enhancements
+### 5. Run the Flask Application
 
-- Machine learning model integration (BERT, RoBERTa)
-- Multi-language sentiment analysis
-- Advanced analytics and reporting
-- User authentication and role management
-- API rate limiting and caching
-- Real-time notifications for sentiment alerts
+Start the backend server by executing `app.py`:
 
-## 🤝 Contributing
+```bash
+python app.py
+```
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Upon its first run, the application will:
+* Download the RoBERTa model (this might take a few minutes depending on your internet connection and cache settings).
+* Initialize and create the `sentiment.db` SQLite database file in the project's root directory.
 
-## 📝 License
+### 6. Access the Dashboard
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Once the Flask application is running, open your web browser and navigate to:
+[http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-## 🙏 Acknowledgments
+## 💡 How to Interact with the Dashboard
 
-- NLTK team for providing excellent NLP tools
-- Chart.js community for visualization capabilities
-- Tailwind CSS for the styling framework
-- All contributors and testers who helped improve this project
+1.  **Submit Feedback:** Enter any customer feedback or general text into the "Submit New Feedback" textarea.
+2.  **Analyze & Save:** Click the "Analyze & Save" button. The system will process the text, display its sentiment (Positive, Negative, or Neutral), and save it.
+3.  **Monitor Live Dashboard:**
+    * The "Positive", "Negative", and "Neutral" count cards will update dynamically with a subtle animation.
+    * The "Sentiment Distribution" doughnut chart will visually adjust to reflect the updated proportions.
+    * Your submitted feedback will appear instantly in the "Recent Feedback" list.
+4.  **Filter Feedback:** Utilize the filter buttons (All, Positive, Negative, Neutral) located above the "Recent Feedback" list to display specific sentiment categories.
+5.  **Clear Input:** The "Clear" button will reset the textarea and hide the last analysis result.
+6.  **Automatic Refresh:** For continuous monitoring, the dashboard data (counts, chart, and recent feedback) automatically refreshes every 30 seconds.
+
+## 🌐 Project Structure
+
+```
+.
+├── app.py                     # Flask backend: API endpoints, sentiment analysis, DB interaction
+├── templates/
+│   └── index.html             # Frontend: HTML structure, CSS styling, JavaScript logic for UI
+├── sentiment.db               # SQLite database file (auto-generated on first run)
+├── requirements.txt           # Python dependencies for the project
+└── README.md                  # This project documentation file
+```
+
+## 🧑‍💻 Development Insight
+
+This project began its journey within a Google Colab environment. This allowed for rapid prototyping, efficient model loading, and iterative testing of the core sentiment analysis logic leveraging Colab's free GPU resources. Once the analysis pipeline was robust, it was refactored and integrated into this Flask web application to create a fully interactive and standalone dashboard.
+
+* **Google Colab Notebook (Development & Exploration):**
+    [**YOUR_GOOGLE_COLAB_PUBLIC_LINK_HERE**](**YOUR_GOOGLE_COLAB_PUBLIC_LINK_HERE**)
+    *(**Important:** Please ensure this link points to your public Colab notebook, set to "Anyone with the link can view.")*
+
+* **Sentiment Model Source:** The sentiment classification is performed using the pre-trained
+    [cardiffnlp/twitter-roberta-base-sentiment](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment)
+    model, hosted on the Hugging Face Model Hub.
+
+## 🤝 Contribution
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/issues) (once you create your repo).
+
+## 📄 License
+
+This project is open-source and released under the [MIT License](https://opensource.org/licenses/MIT).
+*(Consider adding an actual `LICENSE` file to your repository if you haven't already.)*
+
+---
+````
