@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Feedback Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --background-light: #f4f7f6;
+            --background-dark: #e0e4e8;
+            --text-color: #333;
+            --card-background: #ffffff;
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            --shadow-strong: rgba(0, 0, 0, 0.15);
+            --positive-color: #4CAF50;
+            --negative-color: #F44336;
+            --neutral-color: #FFC107;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--background-light) 0%, var(--background-dark) 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px var(--shadow-strong);
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .positive .stat-number { color: var(--positive-color); }
+        .negative .stat-number { color: var(--negative-color); }
+        .neutral .stat-number { color: var(--neutral-color); }
+
+        .input-section {
+            grid-column: 1 / -1;
+        }
+
+        h2 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 1em;
+            resize: vertical;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(37, 117, 252, 0.1);
+            outline: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 150px;
+            padding: 14px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px var(--shadow-light);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow-strong);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #result.show {
+            opacity: 1;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .feedback-list {
+            grid-column: 1 / -1;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .feedback-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px var(--shadow-light);
+        }
+
+        .feedback-item.positive { border-left-color: var(--positive-color); }
+        .feedback-item.negative { border-left-color: var(--negative-color); }
+        .feedback-item.neutral { border-left-color: var(--neutral-color); }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .sentiment-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .sentiment-badge.positive {
+            background: var(--positive-color);
+            color: white;
+        }
+
+        .sentiment-badge.negative {
+            background: var(--negative-color);
+            color: white;
+        }
+
+        .sentiment-badge.neutral {
+            background: var(--neutral-color);
+            color: white;
+        }
+
+        .feedback-text {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .timestamp {
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn.active {
+            border-color: var(--secondary-color);
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .app-footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--background-dark);
+            color: #777;
+            font-size: 0.9em;
+            line-height: 1.8;
+            animation: fadeInUp 0.6s ease 0.3s; /* Delayed animation */
+        }
+
+        .app-footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .app-footer a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>📊 Sentiment Analysis Dashboard</h1>
+            <p class="subtitle">Real-time Customer Feedback Analytics</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card stat-card positive">
+                <div class="stat-label">Positive</div>
+                <div class="stat-number" id="positive-count">0</div>
+                <div class="stat-label">Feedbacks</div>
+            </div>
+
+            <div class="card stat-card negative">
+                <div class="stat-label">Negative</div>
+                <div class="stat-number" id="negative-count">0</div>
+                <div class="stat-label">Feedbacks</div>
+            </div>
+
+            <div class="card stat-card neutral">
+                <div class="stat-label">Neutral</div>
+                <div class="stat-number" id="neutral-count">0</div>
+                <div class="stat-label">Feedbacks</div>
+            </div>
+
+            <div class="card input-section">
+                <h2>📝 Submit New Feedback</h2>
+                <textarea id="feedback-text" placeholder="Enter customer feedback here..."></textarea>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="submitFeedback()">
+                        Analyze & Save
+                    </button>
+                    <button class="btn-secondary" onclick="clearInput()">
+                        Clear
+                    </button>
+                </div>
+                <div id="result"></div>
+            </div>
+
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2>📈 Sentiment Distribution</h2>
+                <div class="chart-container">
+                    <canvas id="sentiment-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="card feedback-list">
+                <h2>💬 Recent Feedback</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterFeedback('all')">All</button>
+                    <button class="filter-btn" onclick="filterFeedback('positive')">Positive</button>
+                    <button class="filter-btn" onclick="filterFeedback('negative')">Negative</button>
+                    <button class="filter-btn" onclick="filterFeedback('neutral')">Neutral</button>
+                </div>
+                <div id="feedback-items"></div>
+            </div>
+        </div>
+
+        <footer class="app-footer">
+            <p>Powered by <a href="https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment" target="_blank" rel="noopener noreferrer">RoBERTa-base Sentiment Model</a> from Hugging Face.</p>
+            <p>Explore the full development process and model implementation in the <a id="colab-link" href="#" target="_blank" rel="noopener noreferrer">Google Colab Notebook</a>.</p>
+            <p>Dashboard designed and developed by DEBLINA MANDAL</p>
+        </footer>
+    </div>
+
+    <script>
+        // !! IMPORTANT: PASTE YOUR PUBLIC GOOGLE COLAB LINK HERE !!
+        const MY_COLAB_NOTEBOOK_LINK = 'https://colab.research.google.com/drive/1Tnr92mV1L4v9o06wEcrRRsZJP_tfkQ1f?usp=sharing'; 
+        if (MY_COLAB_NOTEBOOK_LINK !== 'https://colab.research.google.com/drive/1Tnr92mV1L4v9o06wEcrRRsZJP_tfkQ1f?usp=sharing') {
+            document.getElementById('colab-link').href = MY_COLAB_NOTEBOOK_LINK;
+        } else {
+            document.getElementById('colab-link').href = 'https://colab.research.google.com/drive/1Tnr92mV1L4v9o06wEcrRRsZJP_tfkQ1f?usp=sharing'; // Fallback
+            document.getElementById('colab-link').title = 'Please update MY_COLAB_NOTEBOOK_LINK in index.html JavaScript.';
+        }
+
+
+        let myChart;
+        let allFeedback = [];
+        let currentFilter = 'all';
+
+        // Initialize dashboard
+        async function initDashboard() {
+            await loadDashboardData();
+            await loadRecentFeedback();
+        }
+
+        // Submit feedback
+        async function submitFeedback() {
+            const text = document.getElementById('feedback-text').value;
+            const resultElement = document.getElementById('result');
+            
+            if (text.trim() === '') {
+                showResult('Please enter some text.', 'error');
+                return;
+            }
+
+            showResult('Analyzing...', 'loading');
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                const data = await response.json();
+                
+                showResult(`Sentiment: ${data.sentiment.toUpperCase()}`, data.sentiment);
+                document.getElementById('feedback-text').value = '';
+                
+                // Refresh dashboard
+                await loadDashboardData();
+                await loadRecentFeedback();
+                
+            } catch (error) {
+                showResult('Error analyzing feedback', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/dashboard_data');
+                const data = await response.json();
+                
+                // Update stat cards with animation
+                animateValue('positive-count', data.positive);
+                animateValue('negative-count', data.negative);
+                animateValue('neutral-count', data.neutral);
+                
+                // Update chart
+                renderChart(data);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load recent feedback
+        async function loadRecentFeedback() {
+            try {
+                // Fetch ALL feedback from the backend (no filter needed in API call)
+                const response = await fetch('/all_feedback'); // Assuming a new API endpoint for all feedback
+                const data = await response.json();
+                // Assuming the backend sends an array of feedback objects directly
+                allFeedback = data.feedback || []; 
+                displayFeedback();
+            } catch (error) {
+                console.error('Error loading feedback:', error);
+                document.getElementById('feedback-items').innerHTML = 
+                    '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Could not load feedback</p></div>';
+            }
+        }
+
+        // Display feedback based on filter
+        function displayFeedback() {
+            const container = document.getElementById('feedback-items');
+            const filtered = currentFilter === 'all' 
+                ? allFeedback 
+                : allFeedback.filter(item => item.sentiment.toLowerCase() === currentFilter); // Ensure case-insensitive match
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>No ${currentFilter === 'all' ? '' : currentFilter} feedback yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="feedback-item ${item.sentiment}">
+                    <div class="feedback-header">
+                        <span class="sentiment-badge ${item.sentiment}">${item.sentiment.toUpperCase()}</span>
+                        <span class="timestamp">${formatDate(item.created_at)}</span> </div>
+                    <div class="feedback-text">${escapeHtml(item.content)}</div> </div>
+            `).join('');
+        }
+
+        // Filter feedback
+        function filterFeedback(filter) {
+            currentFilter = filter;
+            
+            // Update active button (event.target is available only if called directly from HTML)
+            // For programmatic calls or if you want to be robust:
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.dataset.filter === filter) { // Assuming a data-filter attribute on buttons
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            displayFeedback();
+        }
+
+        // Render chart
+        function renderChart(data) {
+            const ctx = document.getElementById('sentiment-chart').getContext('2d');
+            
+            if (myChart) {
+                myChart.destroy();
+            }
+            
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Positive', 'Negative', 'Neutral'],
+                    datasets: [{
+                        data: [data.positive, data.negative, data.neutral],
+                        backgroundColor: [
+                            'var(--positive-color)',
+                            'var(--negative-color)',
+                            'var(--neutral-color)'
+                        ],
+                        borderColor: [
+                            'rgba(76, 175, 80, 1)',
+                            'rgba(244, 67, 54, 1)',
+                            'rgba(255, 193, 7, 1)'
+                        ],
+                        borderWidth: 2,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    family: 'Poppins',
+                                    size: 14,
+                                    weight: '500'
+                                },
+                                padding: 20,
+                                color: '#333'
+                            }
+                        },
+                        title: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: {
+                                family: 'Poppins',
+                                size: 14
+                            },
+                            bodyFont: {
+                                family: 'Poppins',
+                                size: 13
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Animate counter
+        function animateValue(id, end) {
+            const element = document.getElementById(id);
+            const start = parseInt(element.innerText) || 0;
+            const duration = 500;
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    element.innerText = end;
+                    clearInterval(timer);
+                } else {
+                    element.innerText = Math.floor(current);
+                }
+            }, 16);
+        }
+
+        // Show result message
+        function showResult(message, type) {
+            const resultElement = document.getElementById('result');
+            resultElement.innerText = message;
+            resultElement.className = 'show';
+            
+            const colors = {
+                'positive': 'var(--positive-color)',
+                'negative': 'var(--negative-color)',
+                'neutral': 'var(--neutral-color)',
+                'error': 'var(--negative-color)',
+                'loading': 'var(--secondary-color)'
+            };
+            
+            resultElement.style.color = colors[type] || 'var(--text-color)';
+            resultElement.style.backgroundColor = type === 'error' ? 'rgba(244, 67, 54, 0.1)' : 'transparent';
+        }
+
+        // Clear input
+        function clearInput() {
+            document.getElementById('feedback-text').value = '';
+            document.getElementById('result').classList.remove('show');
+        }
+
+        // Format date
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (days > 0) return `${days}d ago`;
+            if (hours > 0) return `${hours}h ago`;
+            if (minutes > 0) return `${minutes}m ago`;
+            return 'Just now';
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        // Enter key to submit
+        document.getElementById('feedback-text').addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                submitFeedback();
+            }
+        });
+
+        // Auto-refresh every 30 seconds
+        setInterval(async () => {
+            await loadDashboardData();
+            await loadRecentFeedback();
+        }, 30000);
+    </script>
+</body>
+</html>
